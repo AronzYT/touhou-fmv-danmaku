@@ -29,7 +29,7 @@ Players control a character using a **virtual joystick** to dodge complex bullet
 
 - **Movement:** Use the **on-screen joystick** to move your character.  
 - **Shoot:** Tap the **Shoot button** to fire bullets.
-- **Focus** Makes your movement slower by holding it
+- **Focus:** Makes your movement slower by holding it
 - Avoid enemy bullets and defeat waves of enemies to progress through the stages.
 
 **Tips:**
