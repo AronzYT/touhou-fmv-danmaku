@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Touhou FMV Danmaku I</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
+  body {
+    background: #06000f;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    overflow: hidden;
+    font-family: 'Courier New', monospace;
+    color: #fff;
+  }
+  #ui {
+    display: flex;
+    gap: 16px;
+    padding: 6px 0 4px 0;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #ffccee;
+    text-shadow: 0 0 8px #ff44aa;
+    width: 100%;
+    justify-content: center;
+  }
+  #gameCanvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    border: 1px solid #440033;
+    box-shadow: 0 0 30px #ff00aa33;
+    touch-action: none;
+  }
+  #controls {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    flex-shrink: 0;
+  }
+  #joystickZone {
+    position: relative;
+    width: 110px;
+    height: 110px;
+  }
+  #joystickBase {
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: rgba(255,100,200,0.10);
+    border: 2px solid rgba(255,100,200,0.30);
+  }
+  #joystickThumb {
+    position: absolute;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255,150,220,0.55);
+    border: 2px solid rgba(255,200,240,0.7);
+    top: 33px; left: 33px;
+    pointer-events: none;
+    box-shadow: 0 0 10px #ff44aa88;
+  }
+  #rightButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+  .btn {
+    border-radius: 50%;
+    border: none;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    display: flex; align-items: center; justify-content: center;
+    letter-spacing: 1px;
+  }
+  #shootBtn {
+    width: 70px; height: 70px;
+    background: rgba(100,200,255,0.18);
+    border: 2px solid rgba(100,200,255,0.5);
+    color: #88ffff;
+    font-size: 11px;
+    box-shadow: 0 0 14px #44aaffaa;
+  }
+  #focusBtn {
+    width: 46px; height: 46px;
+    background: rgba(255,200,100,0.13);
+    border: 2px solid rgba(255,200,100,0.4);
+    color: #ffdd88;
+    font-size: 9px;
+    box-shadow: 0 0 8px #ffaa2266;
+  }
+  #startOverlay {
+    position: fixed;
+    inset: 0;
+    background: #06000fcc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    z-index: 99;
+  }
+  
+  h4 {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.3);
+    text-align: center;
+    font-size: 1em;
+    margin: 0;
+    pointer-events: none;
+    user-select: none;
+}
+
+  #startOverlay h1 { font-size: 20px; letter-spacing: 4px; color: #ffaadd; text-shadow: 0 0 16px #ff44aa; }
+  #startOverlay p  { font-size: 10px; letter-spacing: 2px; color: #cc88bb; }
+  #startBtn {
+    margin-top: 16px;
+    padding: 12px 32px;
+    background: rgba(255,100,180,0.2);
+    border: 2px solid #ff44aa;
+    color: #ffaadd;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    letter-spacing: 3px;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 0 18px #ff44aa66;
+  }
+</style>
+</head>
+<body>
+
+<div id="ui">
+  <span>LIVES: <span id="livesUI">♥♥♥♥♥</span></span>
+  <span>SCORE: <span id="scoreUI">0</span></span>
+  <span>WAVE: <span id="waveUI">1</span></span>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<div id="controls">
+  <div id="joystickZone">
+    <div id="joystickBase"></div>
+    <div id="joystickThumb"></div>
+  </div>
+  <div id="rightButtons">
+    <button class="btn" id="shootBtn">SHOOT</button>
+    <button class="btn" id="focusBtn">FOCUS</button>
+  </div>
+</div>
+
+<div id="startOverlay">
+  <h1>東方ピクセル地獄</h1>
+  <p style="font-size:14px; color:#ffaadd;">TOUHOU FMV DANMAKU</p>
+  <p>JOYSTICK = MOVE</p>
+  <p>SHOOT = FIRE  |  FOCUS = SLOW</p>
+  <p>5 LIVES · 4 WAVES · 1 BOSS</p>
+  <button id="startBtn">▶ START</button>
+  <h4>Fan-made project. Touhou Project © ZUN / Team Shanghai Alice. Not official.</h4>
+</div>
+
+<script>
+// ── Canvas sizing ───────────────────────────────────────────────
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+function resize() {
+  const uiH = document.getElementById('ui').offsetHeight;
+  const ctrlH = document.getElementById('controls').offsetHeight;
+  const avail = window.innerHeight - uiH - ctrlH - 4;
+  const side = Math.min(window.innerWidth, avail * 0.75, 384);
+  canvas.width  = Math.floor(side * 0.75);
+  canvas.height = Math.floor(side);
+  canvas.style.width  = canvas.width  + 'px';
+  canvas.style.height = canvas.height + 'px';
+}
+resize();
+window.addEventListener('resize', resize);
+
+const W = () => canvas.width;
+const H = () => canvas.height;
+
+// ── Input state ────────────────────────────────────────────────
+const input = { dx: 0, dy: 0, shoot: false, focus: false };
+
+// Joystick
+const jZone  = document.getElementById('joystickZone');
+const jThumb = document.getElementById('joystickThumb');
+const jBase  = document.getElementById('joystickBase');
+let joystickActive = false, jTouchId = null;
+let jCX = 55, jCY = 55; // center of joystick zone
+
+function getJZoneRect() { return jZone.getBoundingClientRect(); }
+
+jZone.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  jTouchId = t.identifier;
+  joystickActive = true;
+  updateJoystick(t);
+}, { passive: false });
+
+jZone.addEventListener('touchmove', e => {
+  e.preventDefault();
+  for (const t of e.changedTouches) {
+    if (t.identifier === jTouchId) updateJoystick(t);
+  }
+}, { passive: false });
+
+['touchend','touchcancel'].forEach(ev => {
+  jZone.addEventListener(ev, e => {
+    for (const t of e.changedTouches) {
+      if (t.identifier === jTouchId) {
+        joystickActive = false;
+        jTouchId = null;
+        input.dx = 0; input.dy = 0;
+        jThumb.style.left = '33px';
+        jThumb.style.top  = '33px';
+      }
+    }
+  });
+});
+
+function updateJoystick(touch) {
+  const r = getJZoneRect();
+  const cx = r.left + r.width / 2;
+  const cy = r.top  + r.height / 2;
+  let dx = touch.clientX - cx;
+  let dy = touch.clientY - cy;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  const maxR = r.width / 2 - 22;
+  if (dist > maxR) { dx = dx/dist*maxR; dy = dy/dist*maxR; }
+  jThumb.style.left = (r.width/2  + dx - 22) + 'px';
+  jThumb.style.top  = (r.height/2 + dy - 22) + 'px';
+  input.dx = dist > 4 ? (touch.clientX - cx) / (r.width/2) : 0;
+  input.dy = dist > 4 ? (touch.clientY - cy) / (r.height/2) : 0;
+  const mag = Math.sqrt(input.dx*input.dx + input.dy*input.dy);
+  if (mag > 1) { input.dx /= mag; input.dy /= mag; }
+}
+
+// Shoot / Focus buttons
+const shootBtn = document.getElementById('shootBtn');
+const focusBtn = document.getElementById('focusBtn');
+shootBtn.addEventListener('touchstart', e => { e.preventDefault(); input.shoot = true;  }, { passive: false });
+shootBtn.addEventListener('touchend',   e => { e.preventDefault(); input.shoot = false; }, { passive: false });
+focusBtn.addEventListener('touchstart', e => { e.preventDefault(); input.focus = true;  }, { passive: false });
+focusBtn.addEventListener('touchend',   e => { e.preventDefault(); input.focus = false; }, { passive: false });
+
+// Also support mouse for desktop testing
+shootBtn.addEventListener('mousedown', () => input.shoot = true);
+shootBtn.addEventListener('mouseup',   () => input.shoot = false);
+focusBtn.addEventListener('mousedown', () => input.focus = true);
+focusBtn.addEventListener('mouseup',   () => input.focus = false);
+
+// ── Game state ─────────────────────────────────────────────────
+let gameState = 'idle';
+let score = 0, lives = 5, wave = 0;
+let waveTimer = 0, lastWave = -1;
+let playerBullets = [], enemyBullets = [], enemies = [], boss = null, particles = [];
+let shootCooldown = 0;
+
+const player = { x: 0, y: 0, inv: 0 };
+
+function initPlayer() {
+  player.x = W() / 2;
+  player.y = H() - 50;
+  player.inv = 0;
+}
+
+// ── Wave configs ───────────────────────────────────────────────
+const fairyWaves = [
+  { count: 4, minS: 1, maxS: 2, hp: 2, spd: 0.5 },
+  { count: 5, minS: 3, maxS: 4, hp: 3, spd: 0.7 },
+  { count: 6, minS: 5, maxS: 6, hp: 4, spd: 0.9 },
+  { count: 7, minS: 7, maxS: 8, hp: 5, spd: 1.1 },
+];
+
+function startGame() {
+  gameState = 'play';
+  score = 0; lives = 5; wave = 0; lastWave = -1;
+  playerBullets = []; enemyBullets = []; particles = [];
+  boss = null;
+  initPlayer();
+  spawnWave(0);
+  document.getElementById('startOverlay').style.display = 'none';
+}
+
+document.getElementById('startBtn').addEventListener('click', startGame);
+document.getElementById('startBtn').addEventListener('touchend', e => { e.preventDefault(); startGame(); });
+
+function spawnWave(w) {
+  enemies = []; enemyBullets = [];
+  const c = fairyWaves[w];
+  for (let i = 0; i < c.count; i++) {
+    const col = i % 4, row = Math.floor(i / 4);
+    const fx = W() * 0.12 + col * W() * 0.22 + (row%2===1 ? W()*0.11 : 0);
+    enemies.push({
+      x: fx, y: H() * 0.07 + row * H() * 0.07,
+      w: Math.max(6, W()*0.018), h: Math.max(6, W()*0.018),
+      hp: c.hp, maxHp: c.hp,
+      shootTimer: 60 + Math.random()*60,
+      minS: c.minS, maxS: c.maxS,
+      spd: c.spd, dir: (i%2===0)?1:-1, alive: true,
+    });
+  }
+}
+
+function spawnBoss() {
+  boss = {
+    x: W()/2, y: H()*0.12,
+    w: 12, h: 12,
+    hp: 100, maxHp: 100,
+    phase: 0,
+    shootTimer: 0, shootInterval: 90,
+    moveAngle: 0, alive: true,
+  };
+  enemyBullets = [];
+}
+
+// ── Bullet patterns ────────────────────────────────────────────
+function bossShoot3Lane(b) {
+  const N = 5, speed = H()*0.006;
+  const lanes = [-40, 0, 40];
+  for (const lo of lanes) {
+    for (let i = 0; i < N; i++) {
+      const deg = (i * 180/(N-1)) - 90 + lo;
+      const rad = deg * Math.PI / 180;
+      enemyBullets.push({ x: b.x, y: b.y, vx: speed*Math.cos(rad), vy: speed*Math.sin(rad), r: 3, color: '#ff2244' });
+    }
+  }
+}
+
+function bossShootCircular(b) {
+  const N = 16, speed = H()*0.005;
+  for (let i = 0; i < N; i++) {
+    const rad = (i/N) * 2 * Math.PI;
+    enemyBullets.push({ x: b.x, y: b.y, vx: speed*Math.cos(rad), vy: speed*Math.sin(rad), r: 2.5, color: '#ff6600' });
+  }
+}
+
+function fairyShoot(e) {
+  const count = e.minS + Math.floor(Math.random()*(e.maxS - e.minS + 1));
+  const speed = H()*0.005;
+  const dx = player.x - e.x, dy = player.y - e.y;
+  const base = Math.atan2(dy, dx);
+  const spread = 0.6;
+  for (let i = 0; i < count; i++) {
+    const ang = count===1 ? base : base - spread/2 + (i/(count-1))*spread;
+    enemyBullets.push({ x: e.x, y: e.y+e.h, vx: speed*Math.cos(ang), vy: speed*Math.sin(ang), r: 2.5, color: '#ff2244' });
+  }
+}
+
+function spawnExplosion(x, y, color, n) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random()*2*Math.PI, s = 0.5+Math.random()*2;
+    particles.push({ x, y, vx: Math.cos(a)*s, vy: Math.sin(a)*s, life: 30+Math.random()*20, color });
+  }
+}
+
+function circleRect(cx,cy,cr,rx,ry,rw,rh) {
+  const nx = Math.max(rx, Math.min(cx, rx+rw));
+  const ny = Math.max(ry, Math.min(cy, ry+rh));
+  const dx = cx-nx, dy = cy-ny;
+  return dx*dx+dy*dy < cr*cr;
+}
+
+// ── Update ─────────────────────────────────────────────────────
+function update() {
+  if (gameState !== 'play') return;
+
+  const spd = input.focus ? H()*0.003 : H()*0.006;
+  player.x += input.dx * spd;
+  player.y += input.dy * spd;
+  player.x = Math.max(2, Math.min(W()-4, player.x));
+  player.y = Math.max(2, Math.min(H()-4, player.y));
+
+  shootCooldown--;
+  if (input.shoot && shootCooldown <= 0) {
+    playerBullets.push({ x: player.x, y: player.y-2, vy: -H()*0.016, r: 2 });
+    shootCooldown = 8;
+  }
+
+  if (player.inv > 0) player.inv--;
+
+  playerBullets = playerBullets.filter(b => b.y > -20);
+  playerBullets.forEach(b => b.y += b.vy);
+
+  enemyBullets = enemyBullets.filter(b => b.x>-20 && b.x<W()+20 && b.y>-20 && b.y<H()+20);
+  enemyBullets.forEach(b => { b.x += b.vx; b.y += b.vy; });
+
+  if (player.inv === 0) {
+    for (let i = enemyBullets.length-1; i >= 0; i--) {
+      const b = enemyBullets[i];
+      if (circleRect(b.x, b.y, b.r+1, player.x-1, player.y-1, 2, 2)) {
+        enemyBullets.splice(i,1); playerHit(); break;
+      }
+    }
+  }
+
+  if (wave < 4) {
+    let allDead = true;
+    enemies.forEach(e => {
+      if (!e.alive) return;
+      allDead = false;
+      e.x += e.spd * e.dir;
+      if (e.x < 8 || e.x > W()-16) { e.dir *= -1; e.y += 8; }
+      e.shootTimer--;
+      if (e.shootTimer <= 0) { fairyShoot(e); e.shootTimer = 80+Math.random()*60; }
+      for (let i = playerBullets.length-1; i >= 0; i--) {
+        const pb = playerBullets[i];
+        if (circleRect(pb.x, pb.y, pb.r, e.x, e.y, e.w, e.h)) {
+          playerBullets.splice(i,1); e.hp--;
+          if (e.hp <= 0) { e.alive=false; score+=100*(wave+1); spawnExplosion(e.x+e.w/2,e.y+e.h/2,'#ffaa44',10); }
+          break;
+        }
+      }
+    });
+    if (allDead) {
+      wave++;
+      if (wave < 4) spawnWave(wave);
+      else spawnBoss();
+    }
+  }
+
+  if (boss && boss.alive) {
+    boss.moveAngle += 0.018;
+    boss.x = W()/2 + Math.sin(boss.moveAngle) * W()*0.28;
+    boss.y = H()*0.12 + Math.sin(boss.moveAngle*0.7) * H()*0.04;
+    boss.phase = boss.hp < boss.maxHp*0.5 ? 1 : 0;
+    boss.shootInterval = boss.phase===1 ? 55 : 85;
+    boss.shootTimer--;
+    if (boss.shootTimer <= 0) {
+      bossShoot3Lane(boss);
+      if (boss.phase===1) bossShootCircular(boss);
+      boss.shootTimer = boss.shootInterval;
+    }
+    for (let i = playerBullets.length-1; i >= 0; i--) {
+      const pb = playerBullets[i];
+      if (circleRect(pb.x,pb.y,pb.r,boss.x-boss.w/2,boss.y-boss.h/2,boss.w,boss.h)) {
+        playerBullets.splice(i,1); boss.hp--; score+=5;
+        if (boss.hp <= 0) {
+          boss.alive=false; spawnExplosion(boss.x,boss.y,'#44aaff',30); score+=5000;
+          setTimeout(() => { gameState='win'; }, 1200);
+        }
+        break;
+      }
+    }
+  }
+
+  particles.forEach(p => { p.x+=p.vx; p.y+=p.vy; p.life--; });
+  particles = particles.filter(p => p.life>0);
+
+  updateUI();
+}
+
+function playerHit() {
+  lives--; spawnExplosion(player.x,player.y,'#ffccff',16);
+  player.inv = 120; enemyBullets = [];
+  initPlayer();
+  if (lives <= 0) gameState = 'gameover';
+}
+
+function updateUI() {
+  document.getElementById('livesUI').textContent = '♥'.repeat(Math.max(0,lives));
+  document.getElementById('scoreUI').textContent = score;
+  document.getElementById('waveUI').textContent = wave>=4?'BOSS':wave+1;
+}
+
+// ── Draw ───────────────────────────────────────────────────────
+function draw() {
+  ctx.fillStyle = '#06000f';
+  ctx.fillRect(0,0,W(),H());
+
+  // Stars
+  ctx.fillStyle = '#ffffff22';
+  for (let i = 0; i < 50; i++) {
+    const sx = (i*137 + Date.now()*0.01) % W();
+    const sy = (i*97  + Date.now()*0.015*(i%3+1)) % H();
+    ctx.fillRect(Math.floor(sx),Math.floor(sy),1,1);
+  }
+
+  if (gameState === 'gameover') {
+    drawText('GAME OVER', W()/2, H()/2-20, '#ff4466', 18);
+    drawText('SCORE: '+score, W()/2, H()/2+10, '#ffccdd', 12);
+    drawText('TAP TO RETRY', W()/2, H()/2+40, '#ffaadd', 10);
+    return;
+  }
+  if (gameState === 'win') {
+    drawText('YOU WIN!', W()/2, H()/2-30, '#44ffaa', 18);
+    drawText('SCORE: '+score, W()/2, H()/2+5, '#ffccdd', 12);
+    drawText('TAP TO PLAY AGAIN', W()/2, H()/2+35, '#ffaadd', 10);
+    return;
+  }
+  if (gameState === 'idle') return;
+
+  // Particles
+  particles.forEach(p => {
+    ctx.globalAlpha = p.life/50;
+    ctx.fillStyle = p.color;
+    ctx.fillRect(Math.floor(p.x),Math.floor(p.y),2,2);
+  });
+  ctx.globalAlpha = 1;
+
+  // Fairies
+  enemies.forEach(e => {
+    if (!e.alive) return;
+    const t = e.hp/e.maxHp;
+    ctx.fillStyle = `rgb(${Math.floor(80+175*t)},${Math.floor(200*t)},${Math.floor(80+100*t)})`;
+    ctx.fillRect(Math.floor(e.x),Math.floor(e.y),e.w,e.h);
+    ctx.fillStyle = '#aaffaa44';
+    ctx.fillRect(Math.floor(e.x-3),Math.floor(e.y+1),2,Math.floor(e.h*0.6));
+    ctx.fillRect(Math.floor(e.x+e.w+1),Math.floor(e.y+1),2,Math.floor(e.h*0.6));
+  });
+
+  // Boss
+  if (boss && boss.alive) {
+    drawBoss(boss);
+    const bw=Math.floor(W()*0.6), bh=5;
+    const bx=W()/2-bw/2, by=H()-16;
+    ctx.fillStyle='#330011'; ctx.fillRect(bx,by,bw,bh);
+    ctx.fillStyle=boss.phase===1?'#ff6600':'#4488ff';
+    ctx.fillRect(bx,by,bw*(boss.hp/boss.maxHp),bh);
+    ctx.strokeStyle='#6699ff'; ctx.lineWidth=1; ctx.strokeRect(bx,by,bw,bh);
+    drawText('BOSS HP', W()/2, H()-24, '#aaccff', 8);
+    if (boss.phase===1) drawText('⚠ LAST SPELL', W()/2, boss.y-16, '#ff6600', 8);
+  }
+
+  // Enemy bullets
+  enemyBullets.forEach(b => {
+    ctx.fillStyle = b.color;
+    ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ffffff';
+    ctx.beginPath(); ctx.arc(b.x,b.y,b.r*0.35,0,Math.PI*2); ctx.fill();
+  });
+
+  // Player bullets
+  playerBullets.forEach(b => {
+    ctx.fillStyle='#88ffff';
+    ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill();
+  });
+
+  // Player (blink when inv)
+  if (player.inv===0 || Math.floor(player.inv/4)%2===0) {
+    ctx.fillStyle='#FFDAB9'; ctx.fillRect(Math.floor(player.x),Math.floor(player.y),2,2);
+    ctx.fillStyle='#44cc44'; ctx.fillRect(Math.floor(player.x),Math.floor(player.y+2),2,2);
+    if (input.focus) {
+      ctx.fillStyle='#ffffff66'; ctx.fillRect(Math.floor(player.x),Math.floor(player.y+1),2,1);
+    }
+  }
+
+  // Wave banner
+  if (waveTimer > 0) {
+    waveTimer--;
+    ctx.globalAlpha = Math.min(1, waveTimer/30);
+    drawText(wave<4?`WAVE ${wave+1}`:'FINAL BOSS!', W()/2, H()/2, wave<4?'#ffdd44':'#ff4466', 16);
+    ctx.globalAlpha=1;
+  }
+}
+
+function drawBoss(b) {
+  const px=3;
+  const bx=Math.floor(b.x-b.w/2);
+  const by=Math.floor(b.y-b.h/2);
+  const bitmap=[[0,1,1,1,0],[1,1,1,1,1],[1,1,1,1,1],[1,1,1,1,1],[0,1,1,1,0]];
+  const col=b.phase===1?'#ff6600':'#4488ff';
+  ctx.fillStyle=b.phase===1?'#ff990033':'#4488ff33';
+  ctx.fillRect(bx-px*2,by-px*2,(5+4)*px,(5+4)*px);
+  bitmap.forEach((row,ry)=>row.forEach((cell,rx)=>{
+    if(!cell) return;
+    ctx.fillStyle=(rx===2&&ry===2)?'#aaccff':col;
+    ctx.fillRect(bx+rx*px,by+ry*px,px,px);
+  }));
+}
+
+function drawText(text,x,y,color,size) {
+  ctx.fillStyle=color;
+  ctx.font=`bold ${size}px 'Courier New', monospace`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(text,x,y);
+}
+
+// Tap to retry/restart
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  if (gameState==='gameover'||gameState==='win') startGame();
+});
+canvas.addEventListener('click', () => {
+  if (gameState==='gameover'||gameState==='win') startGame();
+});
+
+// ── Loop ───────────────────────────────────────────────────────
+function loop() {
+  if (gameState==='play' && wave!==lastWave) { waveTimer=90; lastWave=wave; }
+  update(); draw();
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>
