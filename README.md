@@ -27,6 +27,11 @@ Players control a character using a **virtual joystick** to dodge complex bullet
 
 ## How to Play
 
+- Download the latest release of the game
+- Once downloaded, Unpack the downloaded zip file
+- Once the zip file has been unpacked, click on the unpacked folder and click the html file
+
+**Gameplay:**
 - **Movement:** Use the **on-screen joystick** to move your character.  
 - **Shoot:** Tap the **Shoot button** to fire bullets.
 - **Focus:** Makes your movement slower by holding it
