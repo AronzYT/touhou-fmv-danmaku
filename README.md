@@ -1,2 +1,61 @@
-# touhou-fmv-danmaku
-A Danmaku (bullet hell) shoot em' up game inspired by Touhou Project, This game is non-commercial, non-official and not made by ZUN / Team Shanghai Alice, and All rights are reserved to ZUN.
+# Touhou Fanmade Version Danmaku
+
+Made by Yukii
+
+---
+
+## ~ DISCLAIMER ~
+
+This game is a **fan-made project**.  
+Touhou Project and its characters are owned by **ZUN / Team Shanghai Alice**.  
+This game is **not official** and is **non-commercial**.  
+No original game assets (sprites, music, etc.) are included.
+
+## ※ 注意書き ※ (JP Version)
+本作はファンメイド作品です。  
+登場キャラクター・舞台設定・ストーリー等は **ZUN / 上海アリス幻樂団** の著作物です。  
+本作は公式作品ではなく、営利目的ではありません。
+
+---
+
+## Introduction
+
+Touhou Fanmade Version Danmaku is a **bullet hell (danmaku) shoot-'em-up** game inspired by the Touhou Project.  
+Players control a character using a **virtual joystick** to dodge complex bullet patterns while defeating enemies.  
+This is the **first version (v1.0)**, focusing purely on the core danmaku gameplay.
+
+---
+
+## How to Play
+
+- **Movement:** Use the **on-screen joystick** to move your character.  
+- **Shoot:** Tap the **Shoot button** to fire bullets.  
+- Avoid enemy bullets and defeat waves of enemies to progress through the stages.
+
+**Tips:**
+- Dodge bullets first; survival is key.  
+- Learn enemy patterns to anticipate attacks.  
+
+---
+
+## Mobile Controls
+
+| Action      | Control |
+|------------|---------|
+| Move       | On-screen joystick |
+| Shoot      | Shoot button |
+
+---
+
+## Credits
+
+- **Game Concept & Programming:** Yukii  
+- **Inspiration:** Touhou Project by ZUN / Team Shanghai Alice  
+- **Fan Disclaimer:** This is a non-commercial fan project; no official assets are included.
+
+---
+
+## License
+
+This project is licensed under **CC BY-NC-SA 4.0**.  
+See the `LICENSE` file for full terms.
