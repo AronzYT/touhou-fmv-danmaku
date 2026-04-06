@@ -21,15 +21,15 @@ No original game assets (sprites, music, etc.) are included.
 ## Introduction
 
 Touhou Fanmade Version Danmaku is a **bullet hell (danmaku) shoot-'em-up** game inspired by the Touhou Project.  
-Players control a character using a **virtual joystick** to dodge complex bullet patterns while defeating enemies.  
-This is the **first version (v1.0)**, focusing purely on the core danmaku gameplay.
+Players control a character using a **virtual joystick** to dodge complex bullet patterns while defeating enemies.
 
 ---
 
 ## How to Play
 
 - **Movement:** Use the **on-screen joystick** to move your character.  
-- **Shoot:** Tap the **Shoot button** to fire bullets.  
+- **Shoot:** Tap the **Shoot button** to fire bullets.
+- **Focus** Makes your movement slower by holding it
 - Avoid enemy bullets and defeat waves of enemies to progress through the stages.
 
 **Tips:**
@@ -44,6 +44,7 @@ This is the **first version (v1.0)**, focusing purely on the core danmaku gamepl
 |------------|---------|
 | Move       | On-screen joystick |
 | Shoot      | Shoot button |
+| Focus      | Focus button |
 
 ---
 
