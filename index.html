@@ -204,6 +204,16 @@
 
 <canvas id="gameCanvas"></canvas>
 
+<div style="text-align:center; padding: 5px 0 2px;">
+  <button id="pauseBtn" class="btn" style="
+    width: 80px; height: 28px; border-radius: 6px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #ccaadd; font-size: 10px; letter-spacing: 2px;
+    box-shadow: none;
+  ">❚❚ PAUSE</button>
+</div>
+
 <div id="controls">
   <div id="joystickZone">
     <div id="joystickBase"></div>
@@ -454,7 +464,7 @@ function circleRect(cx,cy,cr,rx,ry,rw,rh) {
 
 // ── Update ─────────────────────────────────────────────────────
 function update() {
-  if (gameState !== 'play') return;
+  if (gameState !== 'play' || paused) return;
 
   const spd = input.focus ? H()*0.0022 : H()*0.0045;
   player.x += input.dx * spd;
@@ -707,6 +717,14 @@ function draw() {
     drawText(wave<4?`WAVE ${wave+1}`:'FINAL BOSS!', W()/2, H()/2, wave<4?'#ffdd44':'#ff4466', 16);
     ctx.globalAlpha=1;
   }
+
+  // Pause overlay
+  if (paused) {
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillRect(0, 0, W(), H());
+    drawText('PAUSED', W()/2, H()/2 - 12, '#ffaadd', 18);
+    drawText('tap screen to resume', W()/2, H()/2 + 12, '#aa6688', 9);
+  }
 }
 
 function drawBoss(b) {
@@ -731,12 +749,27 @@ function drawText(text,x,y,color,size) {
   ctx.fillText(text,x,y);
 }
 
-// Tap to retry/restart
+// ── Pause ──────────────────────────────────────────────────────
+let paused = false;
+const pauseBtn = document.getElementById('pauseBtn');
+
+function togglePause() {
+  if (gameState !== 'play') return;
+  paused = !paused;
+  pauseBtn.innerHTML = paused ? '▶ RESUME' : '❚❚ PAUSE';
+}
+
+pauseBtn.addEventListener('touchend', e => { e.preventDefault(); togglePause(); }, { passive: false });
+pauseBtn.addEventListener('click', () => togglePause());
+
+// Tap canvas to resume
 canvas.addEventListener('touchend', e => {
   e.preventDefault();
+  if (paused) { togglePause(); return; }
   if (gameState==='gameover'||gameState==='win') startGame();
 });
 canvas.addEventListener('click', () => {
+  if (paused) { togglePause(); return; }
   if (gameState==='gameover'||gameState==='win') startGame();
 });
 
@@ -749,7 +782,7 @@ function loop() {
 loop();
 </script>
 <div id="watermark">
-  version v1.1 | This is not endorsed nor affiliated by ZUN<br>
+  version v1.11 | This is not endorsed nor affiliated by ZUN<br>
   It's just a fanmade version ^^<br>
   Copyright © ZUN/Team Shanghai Alice
 </div>
