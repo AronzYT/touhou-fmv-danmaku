@@ -52,7 +52,7 @@ Players control a character using a **virtual joystick** to dodge complex bullet
 | Move       | On-screen joystick |
 | Shoot      | Shoot button |
 | Focus      | Focus button |
-| Beam       | Bomb button |
+| Beam (added in v1.1) | Bomb button |
 
 ---
 
