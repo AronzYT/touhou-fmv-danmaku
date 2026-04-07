@@ -36,6 +36,7 @@ Players control a character using a **virtual joystick** to dodge complex bullet
 - **Shoot:** Tap the **Shoot button** to fire bullets.
 - **Focus:** Makes your movement slower by holding it (Useful for dodging in tight spaces)
 - **Bomb:** Fires a beam across part of the screen, instantly defeating any enemies it hits.
+- **Pause:** Pauses the gameplay, Tap either the screen or the **Pause** Button to resume playing.
  • During boss battles, it deals 10% of the boss’s max HP instead.
 - Avoid enemy bullets and defeat waves of enemies to progress through the stages.
 
@@ -53,6 +54,7 @@ Players control a character using a **virtual joystick** to dodge complex bullet
 | Shoot      | Shoot button |
 | Focus      | Focus button |
 | Beam (added in v1.1) | Bomb button |
+| Pause/Resume (added in v1.1.1) | Pause button |
 
 ---
 
