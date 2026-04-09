@@ -40,6 +40,16 @@ Players control a character using a **virtual joystick** to  dodge complex bulle
 - **Pause:** Pauses the gameplay. Tap either the screen or the **Pause button** to resume playing.
 - Avoid enemy bullets and defeat waves of enemies to progress through the stages.
 
+---
+
+**Difficulty Screen:**
+
+- When entering the game and clicking the **Play** button, it will prompt a screen that allows you to choose your difficulty
+- **Easy**: A slightly more easier version of the game, Slower and fewer bullets, For casual players.
+- **Hard**: A hard version of the game, Faster and more bullets, For serious and hardcore players.
+
+---
+
 **Tips:**
 - Dodge bullets first; survival is key.
 - Learn enemy patterns to anticipate attacks.
