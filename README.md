@@ -7,7 +7,7 @@ Made by Yukii
 ## ~ DISCLAIMER ~
 
 This game is a **fan-made project**.  
-Touhou Project and its characters are owned by **ZUN / Team Shanghai Alice**.  
+Touhou Project are owned by **ZUN / Team Shanghai Alice**.  
 This game is **not official** and is **non-commercial**.  
 No original game assets (sprites, music, etc.) are included.
 
@@ -21,47 +21,48 @@ No original game assets (sprites, music, etc.) are included.
 ## Introduction
 
 Touhou Fanmade Version Danmaku is a **bullet hell (danmaku) shoot-'em-up** game inspired by the Touhou Project.  
-Players control a character using a **virtual joystick** to dodge complex bullet patterns while defeating enemies.
+Players control a character using a **virtual joystick** to  dodge complex bullet patterns while defeating enemies and collecting orbs in order to get a higher score.
 
 ---
 
 ## How to Play
 
 - Download the latest release of the game
-- Once downloaded, Unpack the downloaded zip file
-- Once the zip file has been unpacked, click on the unpacked folder and click the html file
+- Once downloaded, unpack the downloaded zip file
+- Once the zip file has been unpacked, click on the unpacked folder and click the HTML file
 
 **Gameplay:**
-- **Movement:** Use the **on-screen joystick** to move your character.  
+- **Movement:** Use the **on-screen joystick** to move your character.
 - **Shoot:** Tap the **Shoot button** to fire bullets.
-- **Focus:** Makes your movement slower by holding it (Useful for dodging in tight spaces)
+- **Focus:** Makes your movement slower by holding it (useful for dodging in tight spaces).
 - **Bomb:** Fires a beam across part of the screen, instantly defeating any enemies it hits.
-   • During boss battles, it deals 10% of the boss’s max HP instead.
-- **Pause:** Pauses the gameplay, Tap either the screen or the **Pause** Button to resume playing.
+  - During boss battles, it deals **10% of the boss's max HP** instead.
+- **Pause:** Pauses the gameplay. Tap either the screen or the **Pause button** to resume playing.
 - Avoid enemy bullets and defeat waves of enemies to progress through the stages.
 
 **Tips:**
-- Dodge bullets first; survival is key.  
-- Learn enemy patterns to anticipate attacks.  
+- Dodge bullets first; survival is key.
+- Learn enemy patterns to anticipate attacks.
 
 ---
 
 ## Mobile Controls
 
-| Action      | Control |
-|------------|---------|
-| Move       | On-screen joystick |
-| Shoot      | Shoot button |
-| Focus      | Focus button |
-| Beam (added in v1.1) | Bomb button |
-| Pause/Resume (added in v1.1.1) | Pause button |
+| Action | Control |
+|--------|---------|
+| Move | On-screen joystick |
+| Shoot | Shoot button |
+| Focus | Focus button |
+| Beam *(added in v1.1)* | Bomb button |
+| Pause/Resume *(added in v1.1.1)* | Pause button |
 
 ---
 
 ## Credits
 
-- **Game Concept & Programming:** Yukii  
-- **Inspiration:** Touhou Project by ZUN / Team Shanghai Alice  
+- **Game Developer:** Yukii
+- **Game Tester:** Simple
+- **Inspiration:** Touhou Project by ZUN / Team Shanghai Alice
 - **Fan Disclaimer:** This is a non-commercial fan project; no official assets are included.
 
 ---
